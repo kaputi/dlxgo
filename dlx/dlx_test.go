@@ -38,11 +38,13 @@ func TestDlx(t *testing.T) {
 			},
 			solutions: [][]int{{1, 3, 5}},
 		},
+		// 2
 		{
 			identifiers: []string{"0", "1", "2", "3"},
 			rows:        [][]string{{"2", "3"}},
 			solutions:   [][]int{},
 		},
+		// 3
 		{
 			identifiers: []string{"0", "1", "2", "3", "4", "5", "6"},
 			rows: [][]string{
@@ -55,6 +57,7 @@ func TestDlx(t *testing.T) {
 			},
 			solutions: [][]int{{0, 3, 4}},
 		},
+		// 4
 		{
 			identifiers: []string{"0", "1", "2", "3"},
 			rows: [][]string{
@@ -64,6 +67,7 @@ func TestDlx(t *testing.T) {
 			},
 			solutions: [][]int{},
 		},
+		// 5
 		{
 			identifiers: []string{"0", "1", "2", "3"},
 			rows: [][]string{
@@ -72,6 +76,7 @@ func TestDlx(t *testing.T) {
 				{"1"},
 				{"3"},
 			},
+			// 6
 			solutions: [][]int{
 				{0, 3},
 				{1, 2, 3},
@@ -84,7 +89,7 @@ func TestDlx(t *testing.T) {
 		for _, row := range test.rows {
 			dlx.AddConstraintRow(row)
 		}
-		dlx.Solve2()
+		dlx.Solve()
 
 		// root := dlx.root
 		// curr := root.right
@@ -97,44 +102,30 @@ func TestDlx(t *testing.T) {
 		// fmt.Println()
 
 		fmt.Println("---------- test------------")
-		// for _, solution := range dlx.solutions {
-		// 	fmt.Println("solution: ")
-		// 	for _, row := range solution {
-		// 		rowHead, ok := dlx.rowHeads[row]
-		// 		if !ok {
-		// 			fmt.Println("row not found")
-		// 		} else {
-		// 			fmt.Println(rowHead.identifier)
+		for _, solution := range dlx.solutions {
+			fmt.Println("solution:")
+			for _, row := range solution {
+				fmt.Print("[")
+				rowHead, ok := dlx.rowHeads[row]
+				if ok {
+					currNode := rowHead.right
+					for currNode != rowHead {
+						fmt.Print(currNode.identifier)
+						if currNode.right != rowHead {
+							fmt.Print(",")
+						}
+						currNode = currNode.right
+					}
+				}
+				fmt.Print("]")
+			}
+			fmt.Println()
+		}
 
-		// 		// curr := rowHead.right
-		// 		// for curr != rowHead {
-		// 		//   fmt.Print(curr.identifier)
-		// 		//   fmt.Print(" -> ")
-		// 		//   curr = curr.right
-		// 		// }
-		// 		// fmt.Println(row)
-		// 		}
-		// 	}
-		// }
-    
 		fmt.Println("solutions", dlx.solutions)
 		fmt.Println("expected", test.solutions)
 	}
 
 	fmt.Println("DONE")
-
-	// solutions := dlx.Solve()
-	// fmt.Println("solutions 1", solutions)
-
-	// dlx2 := NewDlx([]string{"1", "2", "3", "4", "5", "6", "7"})
-	// dlx2.AddConstraintRow([]string{"1", "4", "7"})      // a
-	// dlx2.AddConstraintRow([]string{"1", "4"})           //b
-	// dlx2.AddConstraintRow([]string{"4", "5", "7"})      //c
-	// dlx2.AddConstraintRow([]string{"3", "5", "6"})      //d
-	// dlx2.AddConstraintRow([]string{"2", "3", "6", "7"}) //e
-	// dlx2.AddConstraintRow([]string{"2", "7"})           //f
-
-	//  solutions2 := dlx2.Solve()
-	// fmt.Println("solutions 2", solutions2)
 
 }

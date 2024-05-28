@@ -2,6 +2,7 @@ package dlx
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/kaputi/dlxgo/stack"
 )
@@ -34,7 +35,6 @@ type Dlx struct {
 	removalStack    stack.Stack
 	solutions       [][]int
 	partialSolution []int
-	solutionsFound  int
 }
 
 func NewDlx(identifiers []string) *Dlx {
@@ -46,14 +46,14 @@ func NewDlx(identifiers []string) *Dlx {
 	}
 
 	for _, identifier := range identifiers {
-		node := newNode()
-		node.identifier = identifier
-		dlx.colHeads[identifier] = node
+		columnHead := newNode()
+		columnHead.identifier = identifier
+		dlx.colHeads[identifier] = columnHead
 
-		node.left = root.left
-		node.right = root
-		root.left.right = node
-		root.left = node
+		columnHead.right = root
+		columnHead.left = root.left
+		root.left.right = columnHead
+		root.left = columnHead
 	}
 
 	return dlx
@@ -61,7 +61,7 @@ func NewDlx(identifiers []string) *Dlx {
 
 func (d *Dlx) AddConstraintRow(identifiers []string) {
 	rowHead := newNode()
-	rowHead.identifier = fmt.Sprintf("row%d", d.rowCounter)
+	rowHead.identifier = fmt.Sprintf("row_%d", d.rowCounter)
 	d.rowHeads[d.rowCounter] = rowHead
 
 	for _, identifier := range identifiers {
@@ -88,15 +88,23 @@ func (d *Dlx) AddConstraintRow(identifiers []string) {
 	d.rowCounter++
 }
 
-func (d *Dlx) Solve2() bool {
+func (d *Dlx) Solve() bool {
 	minColHead := d.getMinColumn()
-
-	// fmt.Println("MIN COL HEAD", minColHead.identifier)
-	// fmt.Println("MIN COL SIZE", minColHead.colSize)
 
 	if minColHead == d.root {
 		// matrix is empty = solution found
-		d.solutions = append(d.solutions, d.partialSolution)
+		// fmt.Println("SOLUTION FOUND", d.partialSolution)
+		sort.Ints(d.partialSolution)
+		exists := false
+		for _, solution := range d.solutions {
+			if EqualSlice(solution, d.partialSolution) {
+				exists = true
+				break
+			}
+		}
+		if !exists {
+			d.solutions = append(d.solutions, d.partialSolution)
+		}
 		d.restoreMatrix()
 		d.partialSolution = []int{}
 		return true
@@ -111,11 +119,11 @@ func (d *Dlx) Solve2() bool {
 
 	for selectedRow != minColHead {
 		if d.nodeCount > 0 {
-			d.coverRow(selectedRow)
 			d.partialSolution = append(d.partialSolution, selectedRow.rowIndex)
+			d.coverRow(selectedRow)
 			// fmt.Println("ADDING TO PARTIAL SOLUTION", selectedRow.rowIndex)
 		}
-		if !d.Solve2() {
+		if !d.Solve() {
 			d.restoreMatrix()
 		}
 		selectedRow = selectedRow.down
@@ -126,86 +134,30 @@ func (d *Dlx) Solve2() bool {
 	return true
 }
 
-// func (d *Dlx) Solve() []solution {
-// 	d.solveHelper(false)
-// 	return d.solutions
-// }
-
-// func (d *Dlx) solveHelper(nested bool) {
-// 	if d.nodeCount == 0 {
-// 		d.solutionsFound++
-// 		d.solutions = append(d.solutions, solution{})
-// 		return
-// 	}
-
-// 	if d.solutionsFound == len(d.solutions) && !nested {
-// 		d.solutions = append(d.solutions, solution{})
-// 	}
-
-// 	colHead := d.getMinColumn()
-
-// 	if colHead.colSize == 0 {
-// 		// no solutions
-// 		d.restoreMatrix()
-// 		return
-// 	}
-
-// 	selectedRow := colHead.down
-
-// 	for selectedRow != colHead {
-// 		solutionRow := solutionRow{}
-
-// 		rowHead := selectedRow.rowHead
-
-// 		// get colHeads in row
-// 		colHeads := make([]*Node, 0)
-// 		curr := rowHead.right
-// 		for curr != rowHead {
-// 			colHeads = append(colHeads, curr.colHead)
-// 			solutionRow = append(solutionRow, curr.identifier)
-// 			curr = curr.right
-// 		}
-
-// 		d.solutions[len(d.solutions)-1] = append(d.solutions[len(d.solutions)-1], solutionRow)
-
-// 		for _, colHead := range colHeads {
-// 			d.coverColumn(colHead)
-// 		}
-
-// 		if d.nodeCount != 0 {
-// 			d.solveHelper(true)
-// 		}
-
-// 		d.restoreMatrix()
-
-// 		selectedRow = selectedRow.down
-// 	}
-// }
-
 func (d *Dlx) removeNode(node *Node) {
-	node.left.right = node.right
-	node.right.left = node.left
-	node.up.down = node.down
-	node.down.up = node.up
-
 	if node.colHead != node {
 		node.colHead.colSize--
 		d.nodeCount--
 	}
 
+	node.left.right = node.right
+	node.right.left = node.left
+	node.up.down = node.down
+	node.down.up = node.up
+
 	d.removalStack.Push(node)
 }
 
 func (d *Dlx) reinsertNode(node *Node) {
-	node.left.right = node
-	node.right.left = node
-	node.up.down = node
-	node.down.up = node
-
 	if node.colHead != node {
 		node.colHead.colSize++
 		d.nodeCount++
 	}
+
+	node.left.right = node
+	node.right.left = node
+	node.up.down = node
+	node.down.up = node
 }
 
 func (d *Dlx) restoreMatrix() {
@@ -249,15 +201,14 @@ func (d *Dlx) coverRow(nodeInRow *Node) {
 	}
 }
 
-// func (d *Dlx) coverColumn(colHead *Node) {
-// 	curr := colHead.down
-// 	for curr != colHead {
-// 		currRow := curr.rowHead.right
-// 		for currRow != curr.rowHead {
-// 			d.removeNode(currRow)
-// 			currRow = currRow.right
-// 		}
-// 		curr = curr.down
-// 	}
-// 	d.removeNode(colHead)
-// }
+func EqualSlice(a, b []int) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, v := range a {
+		if v != b[i] {
+			return false
+		}
+	}
+	return true
+}

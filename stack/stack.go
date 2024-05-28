@@ -16,19 +16,30 @@ func NewStack() *Stack {
 
 func (s *Stack) Push(item interface{}) {
 	s.Length++
-	s.head = &StackNode{item: item, prev: s.head}
+	node := &StackNode{item: item}
+
+	if s.head == nil {
+		s.head = node
+		return
+	}
+
+	node.prev = s.head
+	s.head = node
 }
 
 func (s *Stack) Pop() interface{} {
-	if s.head == nil {
-		return nil
+	s.Length = max(0, s.Length-1)
+
+	if s.Length == 0 {
+		item := s.head.item
+		s.head = nil
+		return item
 	}
 
-	s.Length = min(0, s.Length-1)
+	head := s.head
+	s.head = head.prev
 
-	item := s.head.item
-	s.head = s.head.prev
-	return item
+	return head.item
 }
 
 func (s *Stack) Peek() interface{} {
