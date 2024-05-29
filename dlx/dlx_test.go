@@ -102,28 +102,30 @@ func TestDlx(t *testing.T) {
 		// fmt.Println()
 
 		fmt.Println("---------- test------------")
-		for _, solution := range dlx.solutions {
-			fmt.Println("solution:")
-			for _, row := range solution {
-				fmt.Print("[")
-				rowHead, ok := dlx.rowHeads[row]
-				if ok {
-					currNode := rowHead.right
-					for currNode != rowHead {
-						fmt.Print(currNode.identifier)
-						if currNode.right != rowHead {
-							fmt.Print(",")
-						}
-						currNode = currNode.right
-					}
-				}
-				fmt.Print("]")
-			}
-			fmt.Println()
-		}
+		// for _, solution := range dlx.solutions {
+		// 	fmt.Println("solution:")
+		// 	for _, row := range solution {
+		// 		fmt.Print("[")
+		// 		rowHead, ok := dlx.rowHeads[row]
+		// 		if ok {
+		// 			currNode := rowHead.right
+		// 			for currNode != rowHead {
+		// 				fmt.Print(currNode.identifier)
+		// 				if currNode.right != rowHead {
+		// 					fmt.Print(",")
+		// 				}
+		// 				currNode = currNode.right
+		// 			}
+		// 		}
+		// 		fmt.Print("]")
+		// 	}
+		// 	fmt.Println()
+		// }
 
 		fmt.Println("solutions", dlx.solutions)
 		fmt.Println("expected", test.solutions)
+
+    dlx.PrintSolutions()
 	}
 
 	fmt.Println("DONE")

@@ -201,6 +201,28 @@ func (d *Dlx) coverRow(nodeInRow *Node) {
 	}
 }
 
+func (d *Dlx) PrintSolutions() {
+	for _, solution := range d.solutions {
+		fmt.Print("[")
+		for _, row := range solution {
+			fmt.Print("[")
+			curr := d.rowHeads[row].right
+			for curr != d.rowHeads[row] {
+				fmt.Printf("%s", curr.identifier)
+				if curr.right != d.rowHeads[row] {
+					fmt.Print(", ")
+				}
+				curr = curr.right
+			}
+			fmt.Print("]")
+			if row != solution[len(solution)-1] {
+				fmt.Print(", ")
+			}
+		}
+		fmt.Println("]")
+	}
+}
+
 func EqualSlice(a, b []int) bool {
 	if len(a) != len(b) {
 		return false
