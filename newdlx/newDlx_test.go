@@ -92,7 +92,7 @@ func TestNewDlx(t *testing.T) {
 		for i, row := range test.rows {
 			dlx.AddConstraintRow(fmt.Sprint(i), row)
 		}
-		// dlx.debug = true
+		dlx.debug = true
 
 		dlx.SolveAll()
 
