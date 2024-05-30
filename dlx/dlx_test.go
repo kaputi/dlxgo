@@ -125,7 +125,7 @@ func TestDlx(t *testing.T) {
 		fmt.Println("solutions", dlx.solutions)
 		fmt.Println("expected", test.solutions)
 
-    dlx.PrintSolutions()
+		dlx.PrintSolutions()
 	}
 
 	fmt.Println("DONE")
