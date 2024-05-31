@@ -1,4 +1,4 @@
-package ddlx
+package dlx
 
 import (
 	"fmt"

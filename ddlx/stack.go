@@ -1,4 +1,4 @@
-package ddlx
+package dlx
 
 type StackNode struct {
 	prev *StackNode
@@ -42,12 +42,12 @@ func (s *Stack) pop() *DNode {
 	return head.item
 }
 
-func (s *Stack) peek() *DNode {
-	if s.head == nil {
-		return nil
-	}
-	return s.head.item
-}
+// func (s *Stack) peek() *DNode {
+// 	if s.head == nil {
+// 		return nil
+// 	}
+// 	return s.head.item
+// }
 
 func (s *Stack) toSlice() []*DNode {
 	slice := make([]*DNode, s.Length)
