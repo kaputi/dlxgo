@@ -11,7 +11,7 @@ type sudokuDlxRow struct {
 	columnNames []string
 }
 
-func generateDlx(board boardT) *dlx.Dlx {
+func generateDlx(board *boardT) *dlx.Dlx {
 	rows := []sudokuDlxRow{}
 	colNames := []string{}
 

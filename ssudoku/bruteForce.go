@@ -1,6 +1,8 @@
 package ssudoku
 
-import "fmt"
+import (
+	"time"
+)
 
 func bruteForce(board *boardT) bool {
 	emptySpaces := [][]int{}
@@ -12,10 +14,12 @@ func bruteForce(board *boardT) bool {
 		}
 	}
 
-	return bruteForceHelper(board, &emptySpaces, 0)
+	start := time.Now()
+
+	return bruteForceHelper(board, &emptySpaces, 0, &start)
 }
 
-func bruteForceHelper(board *boardT, emtpySpaces *[][]int, index int) bool {
+func bruteForceHelper(board *boardT, emtpySpaces *[][]int, index int, start *time.Time) bool {
 	if index >= len(*emtpySpaces) {
 		return true
 	}
@@ -24,23 +28,16 @@ func bruteForceHelper(board *boardT, emtpySpaces *[][]int, index int) bool {
 	col := (*emtpySpaces)[index][1]
 
 	for value := 1; value <= 9; value++ {
+		if time.Since(*start) > 1*time.Second {
+			return false
+		}
 		if !isValid(board, row, col, value) {
 			continue
 		}
 
 		board[row][col].Value = value
 
-		// fmt.Print("\033[H\033[2J")
-
-    fmt.Println("BRUTE FORCE")
-		for _, row := range *board {
-			for _, cell := range row {
-				fmt.Printf("%d ", cell.Value)
-			}
-			fmt.Println()
-		}
-
-		if bruteForceHelper(board, emtpySpaces, index+1) {
+		if bruteForceHelper(board, emtpySpaces, index+1, start) {
 			return true
 		}
 

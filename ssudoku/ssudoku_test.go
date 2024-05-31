@@ -2,9 +2,9 @@ package ssudoku
 
 import (
 	"fmt"
-	// "strconv"
+	"strconv"
+	"github.com/kaputi/dlxgo/util"
 	"testing"
-	// "github.com/kaputi/dlxgo/util"
 )
 
 var board1 = [][]int{
@@ -45,43 +45,54 @@ var multipleSolutions = [][]int{
 	{1, 5, 4, 9, 3, 8, 6, 0, 0},
 }
 
-// func TestSolveWithDlx(t *testing.T) {
+func TestSolveWithDlx(t *testing.T) {
 
-// 	board := boardFromMatrix(board1)
+	board := boardFromMatrix(board1)
 
-// 	dlx := generateDlx(board)
-// 	solution := dlx.SolveAll()
-// 	for _, s := range solution {
-// 		// fmt.Printf("Solution: %v\n", s)
-// 		solutionMtx := make([][]int, 9)
-// 		for i := range solutionMtx {
-// 			solutionMtx[i] = make([]int, 9)
-// 		}
+	dlx := generateDlx(&board)
+	solution := dlx.SolveAll()
+	for _, s := range solution {
+		// fmt.Printf("Solution: %v\n", s)
+		solutionMtx := make([][]int, 9)
+		for i := range solutionMtx {
+			solutionMtx[i] = make([]int, 9)
+		}
 
-// 		errs := util.NewErrs()
-// 		for _, cell := range s {
-// 			rowStr, err := strconv.Atoi(fmt.Sprintf("%c", cell[1]))
-// 			errs.Add(err)
-// 			colStr, err := strconv.Atoi(fmt.Sprintf("%c", cell[3]))
-// 			errs.Add(err)
-// 			numStr, err := strconv.Atoi(fmt.Sprintf("%c", cell[5]))
-// 			errs.Add(err)
-// 			if errs.Has() {
-// 				errs.Print()
-// 				t.Fail()
-// 			}
-// 			solutionMtx[rowStr-1][colStr-1] = numStr
-// 		}
+		errs := util.NewErrs()
+		for _, cell := range s {
+			rowStr, err := strconv.Atoi(fmt.Sprintf("%c", cell[1]))
+			errs.Add(err)
+			colStr, err := strconv.Atoi(fmt.Sprintf("%c", cell[3]))
+			errs.Add(err)
+			numStr, err := strconv.Atoi(fmt.Sprintf("%c", cell[5]))
+			errs.Add(err)
+			if errs.Has() {
+				errs.Print()
+				t.Fail()
+			}
+			solutionMtx[rowStr-1][colStr-1] = numStr
+		}
 
-// 		for _, row := range solutionMtx {
-// 			fmt.Println(row)
-// 		}
-// 	}
-// }
+		for _, row := range solutionMtx {
+			fmt.Println(row)
+		}
+	}
+}
 
 func TestGenerateSolved(t *testing.T) {
 
 	board := generateSolvedBoard()
+	for _, row := range board {
+		for _, cell := range row {
+			fmt.Printf("%d ", cell.Value)
+		}
+		fmt.Println()
+	}
+}
+
+func TestGenerate(t *testing.T) {
+
+	board := generate(4)
 	for _, row := range board {
 		for _, cell := range row {
 			fmt.Printf("%d ", cell.Value)
