@@ -1,4 +1,4 @@
-package ssudoku
+package sudoku
 
 func solveOne(board *boardT) []string {
 	dlx := generateDlx(board)

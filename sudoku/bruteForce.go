@@ -1,4 +1,4 @@
-package ssudoku
+package sudoku
 
 import (
 	"time"
