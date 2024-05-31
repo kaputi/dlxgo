@@ -48,3 +48,15 @@ func (s *Stack) Peek() interface{} {
 	}
 	return s.head.item
 }
+
+func (s *Stack) ToSlice() []interface{} {
+  slice := make([]interface{}, s.Length)
+  curr := s.head
+
+  for i := s.Length - 1; i >= 0; i-- {
+    slice[i] = curr.item
+    curr = curr.prev
+  }
+
+  return slice
+}

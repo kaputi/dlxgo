@@ -15,13 +15,17 @@ type dlxNode struct {
 }
 
 type dlxMatrix struct {
-	root            *dlxNode
-	partialSolution [][]string
-	solutions       [][][]string
-	columns         map[string]*dlxNode
-	rowCounter      int
-	debug           bool
-	level           int
+	root                       *dlxNode
+	partialSolution            [][]string
+	solutions                  [][][]string
+	solutionIdentifiers        [][]string
+	partialSolutionIdentifiers []string
+	partialSolutionNodes       *stack.Stack
+	solutionNodes              [][]*dlxNode
+	columns                    map[string]*dlxNode
+	rowCounter                 int
+	debug                      bool
+	level                      int
 }
 
 func NewDlxMatrix(identifiers []string) *dlxMatrix {
@@ -32,8 +36,9 @@ func NewDlxMatrix(identifiers []string) *dlxMatrix {
 	root.right = root
 
 	dlx := &dlxMatrix{
-		root:    root,
-		columns: make(map[string]*dlxNode),
+		root:                 root,
+		columns:              make(map[string]*dlxNode),
+		partialSolutionNodes: stack.NewStack(),
 	}
 
 	for _, identifier := range identifiers {
@@ -263,11 +268,20 @@ func (d *dlxMatrix) solve(multiple bool) bool {
 		copy(currentSolution, d.partialSolution)
 		d.solutions = append(d.solutions, currentSolution)
 
+		solutionNodes := []*dlxNode{}
+		for d.partialSolutionNodes.Length > 0 {
+			node := d.partialSolutionNodes.Pop().(*dlxNode)
+			solutionNodes = append(solutionNodes, node)
+		}
+
+		d.solutionNodes = append(d.solutionNodes, solutionNodes)
+
+		currentSoolutionIdentifiers := make([]string, len(d.partialSolutionIdentifiers))
+		copy(currentSoolutionIdentifiers, d.partialSolutionIdentifiers)
+		d.solutionIdentifiers = append(d.solutionIdentifiers, currentSoolutionIdentifiers)
+
 		d.logAtLevel(fmt.Sprintf("Adding partial solution %v to solutions\n", d.partialSolution))
 		d.logAtLevel(fmt.Sprintf("current solutions: %v\n", d.solutions))
-		// d.partialSolution = [][]string{}
-		// fmt.Println("reseting part solutions: ", d.partialSolution)
-		// fmt.Println("new partSolution: ", d.partialSolution)
 		d.logln("")
 		return true
 	}
@@ -283,6 +297,8 @@ func (d *dlxMatrix) solve(multiple bool) bool {
 		d.logAtLevel(fmt.Sprintf("partialSolution: %v", d.partialSolution))
 		d.logln("")
 		d.partialSolution = [][]string{}
+		d.partialSolutionIdentifiers = []string{}
+		d.partialSolutionNodes = stack.NewStack()
 		return false
 	}
 
@@ -298,6 +314,9 @@ func (d *dlxMatrix) solve(multiple bool) bool {
 
 		d.partialSolution = append(d.partialSolution, d.getRowIdentifiers(selectedRowNode))
 		d.logAtLevel(fmt.Sprintf("partialSolution: %v\n", d.partialSolution))
+
+		rowIdentifier := selectedRowNode.rowIdentifier
+		d.partialSolutionIdentifiers = append(d.partialSolutionIdentifiers, rowIdentifier)
 
 		columnsToCover := []*dlxNode{selectedRowNode.column}
 		d.logAtLevel(fmt.Sprintf("adding %v to columnsToCover\n", selectedRowNode.column.colIdentifier))
@@ -336,6 +355,9 @@ func (d *dlxMatrix) solve(multiple bool) bool {
 		if len(d.partialSolution) > 0 {
 			d.partialSolution = d.partialSolution[:len(d.partialSolution)-1]
 		}
+		if len(d.partialSolutionIdentifiers) > 0 {
+			d.partialSolutionIdentifiers = d.partialSolutionIdentifiers[:len(d.partialSolutionIdentifiers)-1]
+		}
 		d.logAtLevel(fmt.Sprintf("partialSolution: %v\n", d.partialSolution))
 
 		if selectedRowNode.down != smallestCol {
@@ -373,4 +395,52 @@ func (d *dlxMatrix) logAtLevel(msg string) {
 		fmt.Printf("%s %s", fullTab, msg)
 
 	}
+}
+
+func (d *dlxMatrix) GetSolution() [][][]string {
+	return d.solutions
+}
+
+func (d *dlxMatrix) GetSolutionIdentifiers() [][]string {
+	return d.solutionIdentifiers
+}
+
+func (d *dlxMatrix) SOLSOL() ([][]string, [][9][9]int) {
+	solutions := [][]string{}
+
+	boards := [][9][9]int{}
+
+	for i, solution := range d.solutions {
+
+		solutionStrings := []string{}
+
+		solutionIdentifier := d.solutionIdentifiers[i]
+		board := [9][9]int{}
+
+		for rowIndex, row := range solution {
+			value := solutionIdentifier[rowIndex]
+
+			// coordStr := row[0]
+      coordStr := ""
+      for _, c := range row {
+        if len(c) ==4 {
+          coordStr = c
+        }
+      }
+
+			r := int(coordStr[1]-'0') - 1
+			c := int(coordStr[3]-'0') - 1
+			board[r][c] = int(value[0] - '0')
+			// fmt.Printf("r: %v, c: %v\n", r, c)
+			// board[r-1][c-1] = int(value[1] - '0')
+
+			solutionStrings = append(solutionStrings, fmt.Sprintf("cell: %v, value: %v", row[0], value))
+		}
+
+		boards = append(boards, board)
+
+		solutions = append(solutions, solutionStrings)
+	}
+
+	return solutions, boards
 }
