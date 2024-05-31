@@ -94,15 +94,12 @@ func TestDdlx(t *testing.T) {
 
 		solutionRows := dlx.SolveAll()
 		solutionCols := dlx.GetColNamesFromSolutions()
+		solutionRowNames := dlx.GetRowNamesFromSolution()
 
 		fmt.Printf("test %v solutions ===================\n", i)
 		fmt.Printf("solution rows: %v\n", solutionRows)
 		fmt.Printf("solution names: %v\n", solutionCols)
+    fmt.Printf("solution row names: %v\n", solutionRowNames)
 		fmt.Printf("expected: %v\n", test.expects)
-
-		// for _, solution := range solutions {
-		// fmt.Printf("solution: %v\n", solution)
-		// fmt.Printf("expected: %v\n", test.expects)
-		// }
 	}
 }

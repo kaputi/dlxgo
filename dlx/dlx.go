@@ -83,13 +83,21 @@ func (d *Dlx) AddConstraintRow(rowName string, colNames []string) {
 	}
 }
 
-func (d *Dlx) SolveOne() {
+func (d *Dlx) SolveOne() []string {
 	d.solve(false)
+	// TODO: find a good way to return the solutions
+
+	solution := []string{}
+	for _, rowHead := range d.solutions[0] {
+		solution = append(solution, rowHead.identifier)
+	}
+	return solution
 }
 
 func (d *Dlx) SolveAll() [][]string {
 	d.solve(true)
 
+	// TODO: find a good way to return the solutions
 	solutions := make([][]string, len(d.solutions))
 
 	for i, solution := range d.solutions {
@@ -118,6 +126,17 @@ func (d *Dlx) GetColNamesFromSolutions() [][][]string {
 		}
 	}
 
+	return solutions
+}
+
+func (d *Dlx) GetRowNamesFromSolution() [][]string {
+	solutions := make([][]string, len(d.solutions))
+	for i, solution := range d.solutions {
+		solutions[i] = make([]string, len(solution))
+		for j, rowHead := range solution {
+			solutions[i][j] = rowHead.identifier
+		}
+	}
 	return solutions
 }
 
